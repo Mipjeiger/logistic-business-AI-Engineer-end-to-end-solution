@@ -1,7 +1,10 @@
 ## 🎯 GOAL Project — Intelligent Container Inspection System
 Inspection automation container using Vision + AI reasoning
 
-## 🔹 Komponen:
+## ♺ Project workflow:
+![alt text](images/9DA0C843-09F6-485C-8122-483F505D2AEC.png)
+
+## 🔹 Component:
 1️⃣ Image Classification & Damage Detection
 Detect: dent, rust, broken door, leak
 Classify: normal vs damaged
