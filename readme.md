@@ -4,7 +4,7 @@ Inspection automation container using Vision + AI reasoning
 ## ♺ Workflow project:
 ![alt text](images/9DA0C843-09F6-485C-8122-483F505D2AEC.png)
 
-## 🔹 Component:
+## 🔹 Goals project:
 
 ### **1️⃣ Image Classification & Damage Detection**
 
@@ -23,3 +23,13 @@ Inspection automation container using Vision + AI reasoning
 - Count operational risk score
 - Financial loss estimation
 - Decision: allow / hold / reject shipment
+
+# 📝 Logs progress
+
+- Create raw table for Joining on staging SQL table
+- Create schema sql classification table
+- Load container images dataset and display in notebook as iterable
+    
+![alt text](images/container.png)
+    
+-
