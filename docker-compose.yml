@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+    ports:
+      - "5433:${DB_PORT}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  airflow:
+    build: ./aiflow
+    container_name: airflow
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@postgres:${DB_PORT}/${DB_NAME}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./pipelines:/opt/airflow/pipelines
+      - ./data:/opt/airflow/data
+      - ./feast_repo:/opt/airflow/feast_repo
+    command: >
+      bash -c "
+      airflow db upgrade &&
+      airflow users create --username admin --firstname Admin --lastname User --role Admin --email
