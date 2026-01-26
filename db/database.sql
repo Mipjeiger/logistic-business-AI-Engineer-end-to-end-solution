@@ -9,8 +9,6 @@ CREATE SCHEMA IF NOT EXISTS core;
 
 DROP TABLE core.products;
 
-
-
 -- insert data into products table
 INSERT INTO core.products (product_id, product_type, price)
 SELECT DISTINCT
@@ -147,6 +145,118 @@ FROM staging.stg_supply_chain_data;
 
 SELECT * FROM inspection.quality_inspections;
 
+-- Create computer vision inspection feature mart
+CREATE TABLE inspection.cv_detections (
+    detection_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    image_name TEXT,
+    shipment_id TEXT,
+    container_id TEXT,
+    class_id TEXT,
+    confidence FLOAT CHECK (confidence BETWEEN 0 AND 1),
+    bbox_x_center FLOAT,
+    bbox_y_center FLOAT,
+    bbox_width FLOAT,
+    bbox_height FLOAT,
+    bbox_area FLOAT,
+    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    model_version TEXT DEFAULT 'yolo-v8'
+);
+
+-- insert data into cv_detections table
+INSERT INTO inspection.cv_detections (
+    image_name,
+    shipment_id,
+    container_id,
+    class_id,
+    confidence,
+    bbox_x_center,
+    bbox_y_center,
+    bbox_width,
+    bbox_height,
+    bbox_area
+)
+VALUES (
+    '10_20210526T020642376Z.jpg',
+    'SHP001',
+    'CNT001',
+    'dent',
+    0.82,
+    0.51,
+    0.63,
+    0.12,
+    0.18,
+    0.0216
+);
+
+SELECT * FROM inspection.cv_detections;
+
+-- create synthetic container registry table
+CREATE TABLE logistics.container_registry (
+    container_id TEXT PRIMARY KEY,
+    shipment_id UUID REFERENCES logistics.shipments(shipment_id),
+    image_name TEXT,
+    captured_at TIMESTAMP
+);
+
+-- import registry container_registry data from CSV into SQL
+COPY logistics.container_registry
+FROM '/Users/miftahhadiyannoor/Documents/logistics-rag/data/container_registry.csv'
+DELIMITER ','
+CSV HEADER;
+
+-- trunctable
+TRUNCATE TABLE inspection.cv_detections;
+
+-- Bulk insert data into container_registry table
+COPY inspection.cv_detections(
+    image_name,
+    shipment_id,
+    container_id,
+    class_id,
+    confidence,
+    bbox_x_center,
+    bbox_y_center,
+    bbox_width,
+    bbox_height,
+    bbox_area,
+    detected_at,
+    model_version
+)
+FROM '/Users/miftahhadiyannoor/Documents/logistics-rag/data/image_metadata_cleaned.csv'
+DELIMITER ','
+CSV HEADER;
+
+-- create inspection feature mart
+CREATE TABLE inspection.feature_mart AS
+SELECT
+    shipment_id,
+    COUNT(*) as total_detections,
+    AVG(confidence) as avg_confidence,
+    SUM(CASE WHEN class_id='dent' THEN 1 ELSE 0 END) as dent_count,
+    SUM(bbox_area) as total_damage_area
+FROM inspection.cv_detections
+GROUP BY shipment_id;
+
+
+-- feature mart join
+SELECT
+    s.shipment_id,
+    p.product_type,
+    sup.supplier_name,
+    f.total_damage_area,
+    f.total_defects,
+    q.defect_rate
+FROM inspection.feature_mart f
+JOIN logistics.shipments s ON f.shipment_id::UUID = s.shipment_id
+JOIN core.products p ON s.product_id = p.product_id
+JOIN core.suppliers sup ON s.supplier_id = sup.supplier_id
+JOIN inspection.quality_inspections q ON p.product_id = q.product_id;
+
+SELECT column_name
+FROM information_schema.columns
+WHERE table_schema='inspection'
+AND table_name='feature_mart';
+
 
 -- list of queries to select data from all tables
 SELECT * FROM core.products;
@@ -156,3 +266,5 @@ SELECT * FROM core.sales_orders;
 SELECT * FROM core.production_metrics;
 SELECT * FROM logistics.shipments;
 SELECT * FROM inspection.quality_inspections;
+SELECT * FROM logistics.container_registry;
+SELECT * FROM inspection.feature_mart;
