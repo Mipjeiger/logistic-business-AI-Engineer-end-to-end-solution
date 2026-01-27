@@ -5,3 +5,5 @@ data/IMG_VALID
 notebooks/.ipynb_checkpoints
 logs/
 __pycache__/
+.venv/
+mlruns/

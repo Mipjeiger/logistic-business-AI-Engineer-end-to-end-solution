@@ -14,7 +14,7 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 # Load shipment ids from SQL export CSV
 shipments_path = os.path.join(DATA_DIR, "shipments.csv")
 shipments = pd.read_csv(shipments_path)
-shipments_ids = shipments["shipment_id"].tolist()
+shipments_ids = shipments["shipment_id"].astype(str).tolist()  # Fix from int to str
 
 # Load images YOLO
 images_dir = os.path.join(DATA_DIR, "IMG_VALID", "*.jpg")

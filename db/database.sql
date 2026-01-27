@@ -210,7 +210,7 @@ TRUNCATE TABLE inspection.cv_detections;
 -- Bulk insert data into container_registry table
 COPY inspection.cv_detections(
     image_name,
-    shipment_id,
+    shipment_id,    
     container_id,
     class_id,
     confidence,
@@ -226,14 +226,25 @@ FROM '/Users/miftahhadiyannoor/Documents/logistics-rag/data/image_metadata_clean
 DELIMITER ','
 CSV HEADER;
 
+-- validate data
+SELECT shipment_id, COUNT(*)
+FROM inspection.cv_detections
+GROUP BY shipment_id
+LIMIT 10;
+
 -- create inspection feature mart
 CREATE TABLE inspection.feature_mart AS
 SELECT
-    shipment_id,
-    COUNT(*) as total_detections,
-    AVG(confidence) as avg_confidence,
-    SUM(CASE WHEN class_id='dent' THEN 1 ELSE 0 END) as dent_count,
-    SUM(bbox_area) as total_damage_area
+  shipment_id,
+
+  COUNT(*) AS total_detections,
+
+  AVG(confidence) AS avg_confidence,
+
+  SUM(bbox_area) AS total_damage_area,
+
+  SUM(CASE WHEN class_id = 'dent' THEN 1 ELSE 0 END) AS dent_count
+
 FROM inspection.cv_detections
 GROUP BY shipment_id;
 
@@ -243,20 +254,58 @@ SELECT
     s.shipment_id,
     p.product_type,
     sup.supplier_name,
+
     f.total_damage_area,
-    f.total_defects,
+    f.total_detections,
+    f.avg_confidence,
+
     q.defect_rate
+
 FROM inspection.feature_mart f
-JOIN logistics.shipments s ON f.shipment_id::UUID = s.shipment_id
-JOIN core.products p ON s.product_id = p.product_id
-JOIN core.suppliers sup ON s.supplier_id = sup.supplier_id
-JOIN inspection.quality_inspections q ON p.product_id = q.product_id;
 
-SELECT column_name
-FROM information_schema.columns
-WHERE table_schema='inspection'
-AND table_name='feature_mart';
+JOIN logistics.shipments s
+  ON f.shipment_id = s.shipment_id
 
+JOIN core.products p
+  ON s.product_id = p.product_id
+
+JOIN core.suppliers sup
+  ON s.supplier_id = sup.supplier_id
+
+JOIN inspection.quality_inspections q
+  ON p.product_id = q.product_id;
+
+SELECT COUNT(*) FROM inspection.cv_detections;
+SELECT COUNT(*) FROM inspection.feature_mart;
+
+-- Create Machine Learning Engineer dataset
+
+-- create ml_engineer schema
+CREATE SCHEMA IF NOT EXISTS ml;
+
+-- create ml_engineer dataset view
+CREATE OR REPLACE VIEW ml.inspection_training AS
+SELECT
+    s.shipment_id,
+
+    f.total_detections,
+    f.avg_confidence,
+    f.total_damage_area,
+    f.dent_count,
+
+    q.defect_rate,
+
+    CASE
+      WHEN q.defect_rate > 0.23 THEN 1
+      ELSE 0
+    END AS is_high_risk
+
+FROM inspection.feature_mart f
+JOIN logistics.shipments s ON f.shipment_id = s.shipment_id
+JOIN inspection.quality_inspections q ON s.product_id = q.product_id;
+
+-- validate ml view
+SELECT * FROM ml.inspection_training LIMIT 10;
 
 -- list of queries to select data from all tables
 SELECT * FROM core.products;
@@ -268,3 +317,5 @@ SELECT * FROM logistics.shipments;
 SELECT * FROM inspection.quality_inspections;
 SELECT * FROM logistics.container_registry;
 SELECT * FROM inspection.feature_mart;
+SELECT * FROM inspection.cv_detections;
+SELECT * FROM ml.inspection_training;
