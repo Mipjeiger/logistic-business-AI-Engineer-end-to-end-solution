@@ -29,6 +29,7 @@ Inspection automation container using Vision + AI reasoning
 - Create raw table for Joining on staging SQL table
 - Create schema sql classification table
 - Load container images dataset and display in notebook as iterable
+![alt text](images/container.png)
 - Create visualize dashboard for Logistic-RAG Equivalent to ensure the classify container which are damaged vs normal
 - Merged container image with sixth SQL components dataset
     1. CUMULATIVE INSPECTION METRIC
@@ -55,36 +56,32 @@ Inspection automation container using Vision + AI reasoning
     
     - Detecting conttainer ID
     
-    ![train_batch2.jpg](attachment:afd5e4f8-b5e9-469f-9d0b-bbf899d0fe80:train_batch2.jpg)
+    ![alt text](images/train_batch2.jpg)
     
     - Predicting confidence dent container
     
-    ![val_batch1_pred.jpg](attachment:268a8873-7931-4d6c-aa09-66c33d1639d1:val_batch1_pred.jpg)
+    ![val_batch1_pred.jpg](images/val_batch1_pred.jpg)
     
     - Validating confidence dent container
     
-    ![val_batch1_labels.jpg](attachment:97bac86a-d230-4a15-971c-f2e1a38962c3:val_batch1_labels.jpg)
+    ![val_batch1_labels.jpg](images/val_batch1_labels.jpg)
     
     - Validation container detection
     
-    ![val_batch0_pred.jpg](attachment:71beeb88-4ace-45fe-84ca-2bd44a251b85:val_batch0_pred.jpg)
+    ![val_batch0_pred.jpg](images/val_batch0_pred.jpg)
     
-    ![val_batch0_labels.jpg](attachment:a8d56319-055b-4f2a-8538-67f79d653671:val_batch0_labels.jpg)
+    ![val_batch0_labels.jpg](images/val_batch0_labels.jpg)
     
     - Metrics confidence curve container detection
     
-    ![BoxF1_curve.png](attachment:a5fb192c-d755-465d-9bb5-f2f2f572fc3b:BoxF1_curve.png)
+    ![BoxF1_curve.png](images/BoxF1_curve.png)
     
-    ![BoxP_curve.png](attachment:cad8d7ec-1092-46a2-869e-8f290a8f7feb:BoxP_curve.png)
+    ![BoxP_curve.png](images/BoxP_curve.png)
     
-    ![BoxPR_curve.png](attachment:2e069906-83b5-482f-8627-b87d1ea419c9:BoxPR_curve.png)
+    ![BoxPR_curve.png](images/BoxPR_curve.png)
     
-    ![BoxR_curve.png](attachment:a3a01f90-cfa5-48d2-bacc-50342128a2df:BoxR_curve.png)
+    ![BoxR_curve.png](images/BoxR_curve.png)
     
-    ![confusion_matrix_normalized.png](attachment:9405ce6d-ae2d-40ef-850e-de129b8445a7:confusion_matrix_normalized.png)
+    ![confusion_matrix_normalized.png](images/confusion_matrix_normalized.png)
     
-    ![confusion_matrix.png](attachment:6c65e2c2-de44-4796-a60a-ca3bce25e6a4:confusion_matrix.png)
-    
-![alt text](images/container.png)
-    
--
+    ![confusion_matrix.png](images/confusion_matrix.png)
