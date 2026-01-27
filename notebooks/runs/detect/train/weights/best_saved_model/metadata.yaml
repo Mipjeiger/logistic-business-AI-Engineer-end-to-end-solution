@@ -1,0 +1,23 @@
+description: Ultralytics best model trained on container.yaml
+author: Ultralytics
+date: '2026-01-27T15:57:34.921948'
+version: 8.4.7
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 640
+- 640
+names:
+  0: dent
+  1: rust
+  2: broken_door
+  3: leak
+args:
+  batch: 1
+  keras: false
+  int8: false
+  nms: false
+channels: 3
