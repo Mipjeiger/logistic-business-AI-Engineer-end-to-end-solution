@@ -12,6 +12,8 @@ from ultralytics import YOLO
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
+# Slack notifier
+from slack.notifier import notify_slack
 
 # ------------------- CONFIG -------------------- #
 
@@ -123,6 +125,36 @@ def get_sop_recommendation(risk, count):
     return sop_text
 
 
+# Create slack notification function
+def process_slack_alert(result, image_name, img_shape):
+    """Loop YOLO detection and trigger slack alert if qualified."""
+    if result.boxes is None:
+        return
+
+    h, w = img_shape[:2]
+    img_area = h * w
+
+    for box in result.boxes:
+
+        cls_id = int(box.cls[0])
+        label = CLASS_MAP[cls_id]
+
+        confidence = float(box.conf[0])
+
+        x1, y1, x2, y2 = box.xyxy[0]
+        box_area = float(
+            (x2 - x1) * (y2 - y1)
+        )  # Gradient calculation for bounding box area
+        bbox_area_ratio = box_area / img_area
+
+        notify_slack(
+            image_name=image_name,
+            label=label,
+            confidence=confidence,
+            bbox_area_ratio=bbox_area_ratio,
+        )
+
+
 # ------------------- VIDEO PROCESSOR -------------------- #
 
 
@@ -213,6 +245,15 @@ async def inspect_image(file: UploadFile = File(...)):
 
     result = results[0]
 
+    # Slack Alert trigger
+    image = cv2.imread(file_path)
+    process_slack_alert(
+        result=result,
+        image_name=file.filename,
+        img_shape=image.shape,
+    )
+
+    # Existing Pipeline
     counts, severity = extract_features(result)
     risk = calculate_risk_level(severity)
     sop_recommendation = get_sop_recommendation(risk, counts)
@@ -244,8 +285,18 @@ async def inspect_image_visual(file: UploadFile = File(...)):
         device=DEVICE,
     )
 
+    result = results[0]  # ingesting result from results are modeled as list
+    image = cv2.imread(file_path)
+
+    # Create slack alert
+    process_slack_alert(
+        result=result,
+        image_name=file.filename,
+        img_shape=image.shape,
+    )
+
     annotated_path = f"{OUTPUT_DIR}/annotated_{file.filename}"
-    results[0].save(filename=annotated_path)
+    result.save(filename=annotated_path)
 
     return FileResponse(annotated_path, media_type="image/jpeg")
 
@@ -263,6 +314,14 @@ async def inspect_video(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     counts, severity, frames = process_video(input_path, output_path)
+
+    if severity >= 5:
+        notify_slack(
+            image_name=file.filename,
+            label="Video Inspection Alert Summary",
+            confidence=1.0,
+            bbox_area_ratio=severity / 10,
+        )
 
     risk = calculate_risk_level(severity)
     sop_recommendation = get_sop_recommendation(risk, counts)
