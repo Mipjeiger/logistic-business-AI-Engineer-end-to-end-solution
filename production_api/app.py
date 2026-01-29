@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse, FileResponse
 import uvicorn
 import shutil
@@ -219,7 +219,7 @@ def process_video(video_path, output_path):
 # ------------------- API ENDPOINTS -------------------- #
 
 
-@app.get("/healthcheck")
+@app.get("/health")
 async def healthcheck():
     return JSONResponse(content={"status": "ok"}, status_code=200)
 
@@ -230,13 +230,36 @@ async def healthcheck():
 @app.post("/inspect-image")
 async def inspect_image(file: UploadFile = File(...)):
 
-    file_path = f"{UPLOAD_DIR}/{file.filename}"
+    # ---------- VALIDATION ---------- #
+    if file is None:
+        raise HTTPException(
+            status_code=400,
+            detail="File is required. Use multipart/form-data with field name 'file'.",
+        )
+
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only image files allowed.",
+        )
+
+    file_path = os.path.join(UPLOAD_DIR, file.filename)
 
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
+    # ---------- SAFE IMAGE LOAD ---------- #
+
+    image = cv2.imread(file_path)
+
+    if image is None:
+        raise HTTPException(
+            status_code=400,
+            detail="OpenCV failed to read image. Possibly corrupted file.",
+        )
+
     results = model.predict(
-        source=file_path,
+        source=image,
         conf=0.4,
         imgsz=640,
         device=DEVICE,
@@ -245,18 +268,23 @@ async def inspect_image(file: UploadFile = File(...)):
 
     result = results[0]
 
-    # Slack Alert trigger
-    image = cv2.imread(file_path)
-    process_slack_alert(
-        result=result,
-        image_name=file.filename,
-        img_shape=image.shape,
-    )
+    # ---------- SLACK ALERT ---------- #
+    try:
+        process_slack_alert(
+            result=result,
+            image_name=file.filename,
+            img_shape=image.shape,
+        )
+    except Exception as e:
+        print("Slack alert error:", str(e))
 
-    # Existing Pipeline
+    # ---------- RISK ENGINE ---------- #
+
     counts, severity = extract_features(result)
     risk = calculate_risk_level(severity)
     sop_recommendation = get_sop_recommendation(risk, counts)
+
+    # ---------- RESPONSE ---------- #
 
     return {
         "filename": file.filename,
