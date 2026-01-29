@@ -2,7 +2,7 @@
 Inspection automation container using Vision + AI reasoning
 
 ## ♺ Workflow project:
-![alt text](<images/workflow project.png>)
+![alt text](images/workflow-project.png)
 
 ## 🔹 Goals project:
 

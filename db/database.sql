@@ -92,37 +92,7 @@ SELECT
     manufacturing_lead_time
 FROM staging.stg_supply_chain_data;
 
--- query for shipments
-CREATE TABLE logistics.shipments (
-    shipment_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    product_id UUID REFERENCES core.products(product_id),
-    supplier_id UUID REFERENCES core.suppliers(supplier_id),
-    shipping_carrier TEXT,
-    transportation_mode TEXT,
-    route TEXT,
-    shipping_cost NUMERIC(10,2),
-    total_cost NUMERIC(12,2),
-    shipping_time INT,
-    shipped_at DATE DEFAULT CURRENT_DATE
-);
-
--- insert data into shipments table
-INSERT INTO logistics.shipments
-(product_id, supplier_id, shipping_carrier, transportation_mode,
- route, shipping_cost, total_cost, shipping_time)
-SELECT
-    r.order_id,
-    s.supplier_id,
-    r.shipping_carriers,
-    r.transportation_modes,
-    r.routes,
-    r.shipping_costs,
-    r.costs,
-    r.shipping_times
-FROM staging.stg_supply_chain_data r
-JOIN core.suppliers s
-ON r.supplier_name = s.supplier_name;
-SELECT * FROM logistics.shipments;
+SELECT * FROM staging.stg_supply_chain_data LIMIT 10;
 
 -- query for quality inspection
 CREATE TABLE inspection.quality_inspections (
@@ -190,42 +160,6 @@ VALUES (
 
 SELECT * FROM inspection.cv_detections;
 
--- create synthetic container registry table
-CREATE TABLE logistics.container_registry (
-    container_id TEXT PRIMARY KEY,
-    shipment_id UUID REFERENCES logistics.shipments(shipment_id),
-    image_name TEXT,
-    captured_at TIMESTAMP
-);
-
--- import registry container_registry data from CSV into SQL
-COPY logistics.container_registry
-FROM '/Users/miftahhadiyannoor/Documents/logistics-rag/data/container_registry.csv'
-DELIMITER ','
-CSV HEADER;
-
--- trunctable
-TRUNCATE TABLE inspection.cv_detections;
-
--- Bulk insert data into container_registry table
-COPY inspection.cv_detections(
-    image_name,
-    shipment_id,    
-    container_id,
-    class_id,
-    confidence,
-    bbox_x_center,
-    bbox_y_center,
-    bbox_width,
-    bbox_height,
-    bbox_area,
-    detected_at,
-    model_version
-)
-FROM '/Users/miftahhadiyannoor/Documents/logistics-rag/data/image_metadata_cleaned.csv'
-DELIMITER ','
-CSV HEADER;
-
 -- validate data
 SELECT shipment_id, COUNT(*)
 FROM inspection.cv_detections
@@ -278,7 +212,163 @@ JOIN inspection.quality_inspections q
 SELECT COUNT(*) FROM inspection.cv_detections;
 SELECT COUNT(*) FROM inspection.feature_mart;
 
--- Create Machine Learning Engineer dataset
+
+-- create synthetic container registry table
+CREATE TABLE logistics.container_registry (
+    container_id TEXT PRIMARY KEY,
+    shipment_id UUID REFERENCES logistics.shipments(shipment_id),
+    image_name TEXT,
+    captured_at TIMESTAMP
+);
+
+-- 1. create staging table for logistics shipments
+CREATE TABLE staging.stg_shipments_raw (
+    shipment_id UUID,
+    product_id UUID,
+    supplier_id UUID,
+    shipping_carrier TEXT,
+    transportation_mode TEXT,
+    route TEXT,
+    shipping_cost NUMERIC(10,2),
+    total_cost NUMERIC(12,2),
+    shipping_time INT,
+    shipped_at DATE
+);
+
+-- 2. load csv data into staging.stg_shipments_raw table
+COPY staging.stg_shipments_raw
+FROM '/Users/miftahhadiyannoor/Documents/logistics-rag/data/shipments.csv'
+DELIMITER ','
+CSV HEADER;
+
+-- 3. validate data in staging table
+SELECT * FROM staging.stg_shipments_raw LIMIT 10;
+
+-- 4. empty shipments target table before insert
+TRUNCATE logistics.shipments CASCADE;
+
+-- 5. mapping dimension
+INSERT INTO logistics.shipments (
+    shipment_id,
+    product_id,
+    supplier_id,
+    shipping_carrier,
+    transportation_mode,
+    route,
+    shipping_cost,
+    total_cost,
+    shipping_time,
+    shipped_at
+)
+SELECT DISTINCT ON (s.shipment_id)
+    s.shipment_id,
+    p.product_id,
+    sup.supplier_id,
+    s.shipping_carrier,
+    s.transportation_mode,
+    s.route,
+    s.shipping_cost,
+    s.total_cost,
+    s.shipping_time,
+    s.shipped_at
+FROM staging.stg_shipments_raw s
+JOIN staging.stg_supply_chain_data sc
+  ON s.product_id = sc.order_id
+JOIN core.products p
+  ON sc.order_id = p.product_id
+JOIN core.suppliers sup
+  ON sc.supplier_name = sup.supplier_name
+ORDER BY s.shipment_id, s.shipped_at DESC;
+
+-- 6. validate data in logistics.shipments
+SELECT * FROM logistics.shipments LIMIT 10;
+-- check null
+SELECT s.shipment_id
+FROM logistics.shipments s
+LEFT JOIN core.suppliers sup ON s.supplier_id = sup.supplier_id
+WHERE sup.supplier_id IS NULL;
+
+-- 7. load container_registry data
+COPY logistics.container_registry
+FROM '/Users/miftahhadiyannoor/Documents/logistics-rag/data/container_registry.csv'
+DELIMITER ','
+CSV HEADER;
+SELECT * FROM logistics.container_registry LIMIT 10;
+
+-- check if problem data was found
+SELECT DISTINCT shipment_id
+FROM logistics.container_registry
+WHERE shipment_id NOT IN (
+    SELECT shipment_id FROM logistics.shipments
+);
+
+
+-- import registry container_registry data from CSV into SQL
+COPY logistics.container_registry
+FROM '/Users/miftahhadiyannoor/Documents/logistics-rag/data/container_registry.csv'
+DELIMITER ','
+CSV HEADER;
+
+SELECT * FROM logistics.container_registry;
+
+-- query for shipments
+CREATE TABLE logistics.shipments (
+    shipment_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    product_id UUID REFERENCES core.products(product_id),
+    supplier_id UUID REFERENCES core.suppliers(supplier_id),
+    shipping_carrier TEXT,
+    transportation_mode TEXT,
+    route TEXT,
+    shipping_cost NUMERIC(10,2),
+    total_cost NUMERIC(12,2),
+    shipping_time INT,
+    shipped_at DATE DEFAULT CURRENT_DATE
+);
+
+-- truncate before insert
+TRUNCATE TABLE logistics.shipments CASCADE;
+
+-- insert data into shipments table
+INSERT INTO logistics.shipments
+(product_id, supplier_id, shipping_carrier, transportation_mode,
+ route, shipping_cost, total_cost, shipping_time)
+SELECT
+    r.shipment_id,
+    r.order_id,
+    s.supplier_id,
+    r.shipping_carriers,
+    r.transportation_modes,
+    r.routes,
+    r.shipping_costs,
+    r.costs,
+    r.shipping_times
+FROM staging.stg_supply_chain_data r
+JOIN core.suppliers s
+ON r.supplier_name = s.supplier_name;
+SELECT * FROM logistics.shipments;
+
+-- trunctable
+TRUNCATE TABLE inspection.cv_detections;
+
+-- Bulk insert data into container_registry table
+COPY inspection.cv_detections(
+    image_name,
+    shipment_id,    
+    container_id,
+    class_id,
+    confidence,
+    bbox_x_center,
+    bbox_y_center,
+    bbox_width,
+    bbox_height,
+    bbox_area,
+    detected_at,
+    model_version
+)
+FROM '/Users/miftahhadiyannoor/Documents/logistics-rag/data/image_metadata_cleaned.csv'
+DELIMITER ','
+CSV HEADER;
+
 
 -- create ml_engineer schema
 CREATE SCHEMA IF NOT EXISTS ml;
@@ -301,21 +391,24 @@ SELECT
     END AS is_high_risk
 
 FROM inspection.feature_mart f
-JOIN logistics.shipments s ON f.shipment_id = s.shipment_id
+JOIN logistics.shipments s ON f.shipment_id::uuid = s.shipment_id
 JOIN inspection.quality_inspections q ON s.product_id = q.product_id;
 
 -- validate ml view
 SELECT * FROM ml.inspection_training LIMIT 10;
 
 -- list of queries to select data from all tables
+SELECT * FROM raw.supply_chain_data;
 SELECT * FROM core.products;
 SELECT * FROM core.suppliers;
 SELECT * FROM core.inventory_status;
 SELECT * FROM core.sales_orders;
 SELECT * FROM core.production_metrics;
+SELECT * FROM staging.stg_supply_chain_data;
 SELECT * FROM logistics.shipments;
 SELECT * FROM inspection.quality_inspections;
 SELECT * FROM logistics.container_registry;
+SELECT * FROM logistics.shipments;
 SELECT * FROM inspection.feature_mart;
 SELECT * FROM inspection.cv_detections;
 SELECT * FROM ml.inspection_training;

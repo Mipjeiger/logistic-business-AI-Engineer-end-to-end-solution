@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  production-api:
+    build: .
+    container_name: production_api-production
+    image: production_api-production:latest
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./uploads:/app/uploads
+      - ./outputs:/app/outputs
+      - ./model:/app/model
+      - ./rag:/app/rag
+
+    restart: unless-stopped
+    
+    environment:
+      - PYTHONUNBUFFERED=1

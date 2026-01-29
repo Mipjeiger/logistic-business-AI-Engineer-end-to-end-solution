@@ -63,5 +63,7 @@ SELECT
     transportation_modes
 FROM raw.supply_chain_data;
 
+DROP TABLE staging.stg_supply_chain_data;
+
 --validate data in staging table
-SELECT * FROM staging.stg_supply_chain_data LIMIT 10;
+SELECT * FROM staging.stg_supply_chain_data;
