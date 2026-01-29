@@ -1,15 +1,22 @@
 version: "3.9"
 
 services:
-  postgres:
-    image: postgres:18
+  # ==========================
+  # Kubernetes (k3s) Deployment
+  # ==========================
+  k3s:
+    image: rancher/k3s:v1.29.1-k3s1
+    container_name: kubernetes
+    privileged: true
+    command: server --disable traefik
     environment:
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_NAME: ${DB_NAME}
-    ports:
-      - "5433:${DB_PORT}"
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+      - K3S_KUBECONFIG_MODE=644
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - k3s-data:/var/lib/rancher/k3s
+      - ./data/kubeconfig:/output
+    ports:
+      - "6443:6443"  # Kubernetes API server
+
+volumes:
+  k3s-data:
