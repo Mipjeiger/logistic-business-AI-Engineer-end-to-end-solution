@@ -1,53 +1,86 @@
-"""Notification Logic (Core Applied ML Layer)"""
+"""Notification Logic (Core Applied ML Layer) for business use-case via Slack."""
 
-from .thresholds import THRESHOLDS
-from .slack_client import send_slack_message
-
-
-# Create function to check computed severity against thresholds
-def compute_severity(confidence, bbox_area_ratio):
-    """Compute severity score based on confidence config and bounding box area ratio object size."""
-    return round(confidence * bbox_area_ratio, 3)
+from slack.thresholds import THRESHOLD_VERSION
+from .slack_client import send_message
 
 
-# Create function to should notify based on thresholds severity score
-def should_notify(label, severity_score):
-
-    if label not in THRESHOLDS:
-        return False
-
-    rule = THRESHOLDS[label]
-
-    min_v = rule["min"]
-    max_v = rule["max"]
-
-    return min_v < severity_score < max_v
-
-
-# Create function to notify via Slack
-def notify_slack(
-    image_name,
-    label,
-    confidence,
-    bbox_area_ratio,
+def send_alert(
+    shipment_id: str,
+    severity_score: float,
+    alert_level: str,
+    class_name: str,
+    damage_counts: dict,
+    sop_recommendation: str,
+    image_name: str,
 ):
 
-    # Compute severity score
-    severity = compute_severity(confidence=confidence, bbox_area_ratio=bbox_area_ratio)
-    if should_notify(label, severity):
-        message = f"""
-        🚨 *Inspection Alert*
+    # -----------------------
+    # Emoji mapping
+    # -----------------------
 
-        Image: '{image_name}'
-        Defect: *{label}*
-        Confidence: '{confidence:.2f}'
-        Area Ratio: '{bbox_area_ratio:.3f}'
-        Severity Score: *{severity}*
+    emoji_map = {"CRITICAL": "🚨", "WARNING": "⚠️", "INFO": "ℹ️"}
+    emoji = emoji_map.get(alert_level, "🔎")
 
-        Action Required ⚠️
-        """
+    # -----------------------
+    # Detection summary text
+    # -----------------------
 
-        send_slack_message(message)
-        return True
+    # Create text summary if damage_counts (example: "rust: 2, dent: 1")
+    summary_text = ", ".join([f"{k}: {v}" for k, v in damage_counts.items()])
+    if not summary_text:
+        summary_text = "No damages detected."
 
-    return False
+    # -----------------------
+    # Slack Block Payload
+    # -----------------------
+
+    payload = {
+        "blocks": [
+            {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": f"{emoji} Container Damage Alert: {alert_level}",
+                },
+            },
+            {
+                "type": "section",
+                "fields": [
+                    {"type": "mrkdwn", "text": f"*Shipment ID:*\n`{shipment_id}`"},
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Severity Score:*\n`{severity_score:.4f}`",
+                    },
+                ],
+            },
+            {
+                "type": "section",
+                "fields": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Detections Summary:*\n{summary_text}",
+                    },
+                    {"type": "mrkdwn", "text": f"*File Name:*\n{image_name}"},
+                ],
+            },
+            {"type": "divider"},
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*📋 SOP Recommendation:*\n{sop_recommendation}",
+                },
+            },
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f"Model: YOLOv8 + Severity Engine | Threshold: {THRESHOLD_VERSION}",
+                    }
+                ],
+            },
+        ]
+    }
+
+    return send_message(payload)

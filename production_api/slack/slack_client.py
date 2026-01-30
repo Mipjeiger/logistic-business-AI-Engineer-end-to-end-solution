@@ -1,12 +1,12 @@
 import requests
-from .config import SLACK_WEBHOOK_URL, SLACK_CHANNEL, SLACK_USERNAME
+from .config import SLACK_WEBHOOK_URL
 
 
-def send_slack_message(text: str):
+def send_message(payload: dict):
 
-    payload = {"username": SLACK_USERNAME, "channel": SLACK_CHANNEL, "text": text}
+    if not SLACK_WEBHOOK_URL:
+        raise ValueError("SLACK_WEBHOOK_URL is not set")
 
     response = requests.post(SLACK_WEBHOOK_URL, json=payload, timeout=5)
 
-    if response.status_code != 200:
-        raise Exception(f"Slack error: {response.status_code}, {response.text}")
+    return response.status_code

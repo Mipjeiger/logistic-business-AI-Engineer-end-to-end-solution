@@ -1,10 +1,13 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse, FileResponse
 import uvicorn
 import shutil
 import os
 import torch
 import cv2
+import numpy as np
+import joblib
+
 
 from ultralytics import YOLO
 
@@ -13,7 +16,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # Slack notifier
-from slack.notifier import notify_slack
+from slack.thresholds import classify_alert, apply_class_weight
+from slack.notifier import send_alert
 
 # ------------------- CONFIG -------------------- #
 
@@ -46,6 +50,10 @@ model = YOLO(MODEL_PATH)
 model.to(DEVICE)
 model.fuse()  # Performance optimization
 
+# ------------------- LOAD MACHINE LEARNING MODEL -------------------- #
+
+print("Loading Severity Model...")
+severity_model = joblib.load("model/severity_model.joblib")
 
 # ------------------- LOAD RAG -------------------- #
 
@@ -127,12 +135,22 @@ def get_sop_recommendation(risk, count):
 
 # Create slack notification function
 def process_slack_alert(result, image_name, img_shape):
-    """Loop YOLO detection and trigger slack alert if qualified."""
+    """YOLO → Feature extraction → Severity model → Threshold → Slack"""
+
     if result.boxes is None:
         return
 
     h, w = img_shape[:2]
     img_area = h * w
+
+    # -----------------------------
+    # Aggregate image-level feature
+    # -----------------------------
+
+    total_boxes = len(result.boxes)
+    confidences = []
+    area_ratios = []
+    class_names = []
 
     for box in result.boxes:
 
@@ -147,11 +165,54 @@ def process_slack_alert(result, image_name, img_shape):
         )  # Gradient calculation for bounding box area
         bbox_area_ratio = box_area / img_area
 
-        notify_slack(
-            image_name=image_name,
-            label=label,
-            confidence=confidence,
-            bbox_area_ratio=bbox_area_ratio,
+        confidences.append(confidence)
+        area_ratios.append(bbox_area_ratio)
+        class_names.append(label)
+
+    # -----------------------------
+    # Build severity features
+    # SAME FORMAT AS TRAINING
+    # -----------------------------
+
+    avg_confidence = sum(confidences) / len(confidences)
+    total_damage_area = sum(area_ratios)
+    detection_count = total_boxes
+
+    # Create feature array
+    features = np.array([[avg_confidence, total_damage_area, detection_count]])
+
+    # -----------------------------
+    # Severity model inference
+    # -----------------------------
+
+    base_score = severity_model.predict(features)[0]
+
+    # -----------------------------
+    # Class weight application
+    # -----------------------------
+
+    dominant_class = max(set(class_names), key=class_names.count)
+    final_score = apply_class_weight(
+        base_score,
+        dominant_class,
+    )
+
+    # -----------------------------
+    # Threshold decision
+    # -----------------------------
+
+    alert_level = classify_alert(final_score)
+
+    # -----------------------------
+    # Slack trigger
+    # -----------------------------
+
+    if alert_level:
+        send_alert(
+            shipment_id=image_name,
+            severity_score=final_score,
+            alert_level=alert_level,
+            class_name=dominant_class,
         )
 
 
@@ -228,7 +289,9 @@ async def healthcheck():
 
 
 @app.post("/inspect-image")
-async def inspect_image(file: UploadFile = File(...)):
+async def inspect_image(
+    file: UploadFile = File(...), background_tasks: BackgroundTasks = None
+):
 
     # ---------- VALIDATION ---------- #
     if file is None:
@@ -265,18 +328,7 @@ async def inspect_image(file: UploadFile = File(...)):
         device=DEVICE,
         verbose=False,
     )
-
     result = results[0]
-
-    # ---------- SLACK ALERT ---------- #
-    try:
-        process_slack_alert(
-            result=result,
-            image_name=file.filename,
-            img_shape=image.shape,
-        )
-    except Exception as e:
-        print("Slack alert error:", str(e))
 
     # ---------- RISK ENGINE ---------- #
 
@@ -284,8 +336,17 @@ async def inspect_image(file: UploadFile = File(...)):
     risk = calculate_risk_level(severity)
     sop_recommendation = get_sop_recommendation(risk, counts)
 
-    # ---------- RESPONSE ---------- #
+    # ---------- REGISTER BACKGROUND TASK FOR SLACK ALERT ---------- #
+    if background_tasks:
+        background_tasks.add_task(
+            process_slack_alert,
+            result=result,
+            image_name=file.filename,
+            img_shape=image.shape,
+        )
 
+    # ---------- RESPONSE ---------- #
+    # User will get immediate response while Slack alert is processed in background
     return {
         "filename": file.filename,
         "damage_counts": counts,
@@ -344,7 +405,7 @@ async def inspect_video(file: UploadFile = File(...)):
     counts, severity, frames = process_video(input_path, output_path)
 
     if severity >= 5:
-        notify_slack(
+        send_alert(
             image_name=file.filename,
             label="Video Inspection Alert Summary",
             confidence=1.0,
