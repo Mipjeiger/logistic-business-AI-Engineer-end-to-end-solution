@@ -1,0 +1,7 @@
+snowflake-connector-python
+snowflake-snowpark-python
+scikit-learn
+joblib
+pandas
+numpy
+streamlit

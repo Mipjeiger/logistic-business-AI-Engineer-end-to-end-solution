@@ -1,3 +1,4 @@
+-- Active: 1764687319910@@127.0.0.1@5432@supply_chain
 CREATE TABLE core.products (
     product_id UUID PRIMARY KEY,
     product_type VARCHAR(50),
@@ -396,6 +397,30 @@ JOIN inspection.quality_inspections q ON s.product_id = q.product_id;
 
 -- validate ml view
 SELECT * FROM ml.inspection_training LIMIT 10;
+
+SELECT * FROM inspection.cv_detections LIMIT 10;
+
+-- dataset for threshold analysis (slack notifier)
+SELECT
+    m.shipment_id,
+    m.total_detections,
+    m.avg_confidence,
+    m.total_damage_area,
+    m.defect_rate,
+    m.is_high_risk,
+    s.shipping_cost,
+    s.total_cost,
+    s.shipping_time
+FROM ml.inspection_training m
+LEFT JOIN logistics.shipments s
+    ON m.shipment_id = s.shipment_id
+
+-- validate data from ml.inspection_training
+SELECT * FROM ml.inspection_training;
+-- validate data from all tables
+SELECT * FROM ml.inspection_training m
+LEFT JOIN logistics.shipments s
+    ON m.shipment_id = s.shipment_id;
 
 -- list of queries to select data from all tables
 SELECT * FROM raw.supply_chain_data;
