@@ -8,3 +8,4 @@ __pycache__/
 .venv/
 mlruns/
 notebooks/dataset
+deployment/.env
