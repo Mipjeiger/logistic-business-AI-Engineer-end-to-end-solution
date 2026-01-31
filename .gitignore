@@ -9,3 +9,4 @@ __pycache__/
 mlruns/
 notebooks/dataset
 deployment/.env
+yolov8-container-inspection/.gitattributes

@@ -1,9 +1,12 @@
-LIST @logistic_stage; -- verification
+-- Create External Function wrapper
+CREATE OR REPLACE EXTERNAL FUNCTION logistic_rag_api(features ARRAY, question STRING)
+RETURNS VARIANT
+API_INTEGRATION = model_api_integration
+AS '';
 
--- create call external API for snowflake network integration
-CREATE OR REPLACE NETWORK RULE model_api_rule
-MODE = EGRESS
-TYPE = HOST_PORT
-VALUE_LIST = 
 
-SHOW SERVICES;
+-- Call external function from snowflake
+SELECT logistic_rag_api(
+    ARRAY_CONSTRUCT(45,2,12000,3).
+    'Why shipment is delayed?'
+)

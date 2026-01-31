@@ -3,11 +3,12 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+ARG PIP_DEFAULT_TIMEOUT=300
+RUN pip install --default-timeout=${PIP_DEFAULT_TIMEOUT} --no-cache-dir -r requirements.txt
 
-# Pastikan struktur folder tetap terjaga
-COPY api/ ./api/
-COPY models/severity_model.joblib ./models/severity_model.joblib
+# Ensure the models directory exists
+COPY deployment/api/ ./api/
+COPY deployment/models/severity_model.joblib /app/models/severity_model.joblib
 
 EXPOSE 8000
 
