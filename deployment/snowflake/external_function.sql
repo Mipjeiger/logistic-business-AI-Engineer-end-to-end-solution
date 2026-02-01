@@ -7,6 +7,6 @@ AS '';
 
 -- Call external function from snowflake
 SELECT logistic_rag_api(
-    ARRAY_CONSTRUCT(45,2,12000,3).
+    ARRAY_CONSTRUCT(45,2,12000,3),
     'Why shipment is delayed?'
-)
+);

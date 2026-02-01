@@ -1,0 +1,5 @@
+import os
+
+SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
+SLACK_CHANNEL = os.getenv("SLACK_CHANNEL")
+SLACK_USERNAME = os.getenv("SLACK_USERNAME")
