@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+joblib
+scikit-learn
+ultralytics
+torch
+opencv-python-headless
+requests
+python-multipart
+python-dotenv
