@@ -102,8 +102,6 @@ DIRS_TO_CLEAR=(
     "$PROJECT_ROOT/notebooks/runs"
     "$PROJECT_ROOT/production_api/model"
     "$PROJECT_ROOT/production_api/rag/sop_db"
-    "$PROJECT_ROOT/deployment/models"
-    "$PROJECT_ROOT/railway_deployment/data/vectordb"
 )
 
 for dir in "${DIRS_TO_CLEAR[@]}"; do
