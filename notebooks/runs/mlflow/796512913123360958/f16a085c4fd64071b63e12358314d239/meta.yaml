@@ -1,0 +1,15 @@
+artifact_uri: /Users/miftahhadiyannoor/Documents/logistics-rag/notebooks/runs/mlflow/796512913123360958/f16a085c4fd64071b63e12358314d239/artifacts
+end_time: 1770120909035
+entry_point_name: ''
+experiment_id: '796512913123360958'
+lifecycle_stage: active
+run_id: f16a085c4fd64071b63e12358314d239
+run_name: container_yolo
+run_uuid: f16a085c4fd64071b63e12358314d239
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1770118623123
+status: 3
+tags: []
+user_id: miftahhadiyannoor

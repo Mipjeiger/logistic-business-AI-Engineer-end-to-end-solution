@@ -11,3 +11,4 @@ notebooks/dataset
 deployment/.env
 yolov8-container-inspection/.gitattributes
 snowflake_deployment/.env
+DISK_SPACE_ANALYSIS.md

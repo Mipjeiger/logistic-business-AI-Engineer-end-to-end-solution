@@ -1,0 +1,15 @@
+artifact_uri: /Users/miftahhadiyannoor/Documents/logistics-rag/notebooks/runs/mlflow/481256391810599437/891a3a0e4c6e4f1fa27989f8e127b883/artifacts
+end_time: 1770174118182
+entry_point_name: ''
+experiment_id: '481256391810599437'
+lifecycle_stage: active
+run_id: 891a3a0e4c6e4f1fa27989f8e127b883
+run_name: train
+run_uuid: 891a3a0e4c6e4f1fa27989f8e127b883
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1770165288364
+status: 3
+tags: []
+user_id: miftahhadiyannoor

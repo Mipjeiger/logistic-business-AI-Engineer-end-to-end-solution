@@ -1,0 +1,10 @@
+path: /Users/miftahhadiyannoor/Documents/logistics-rag/datasets_container/yolo_dataset
+
+train: train_container/images
+val: validation_container/images
+
+nc: 2
+
+names:
+    0: container
+    1: truck
