@@ -85,3 +85,6 @@ Inspection automation container using Vision + AI reasoning
     ![confusion_matrix_normalized.png](images/confusion_matrix_normalized.png)
     
     ![confusion_matrix.png](images/confusion_matrix.png)
+
+    add gif
+    ![alt text](images/output.gif)
