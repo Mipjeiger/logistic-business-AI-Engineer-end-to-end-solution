@@ -1,0 +1,19 @@
+{
+    "model_name": "XGBoost",
+    "model_path": "../models/xgboost/model.pkl",
+    "training_data_shape": [
+        4000,
+        25
+    ],
+    "features": [
+        "Shipping times",
+        "Shipping costs",
+        "Transportation modes",
+        "Routes",
+        "Order quantities",
+        "Production volumes",
+        "Manufacturing costs",
+        "Supplier name"
+    ],
+    "target": "damage_risk"
+}

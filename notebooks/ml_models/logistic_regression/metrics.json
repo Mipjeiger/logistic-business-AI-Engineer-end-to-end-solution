@@ -1,0 +1,12 @@
+{
+    "Model": "Logistic Regression",
+    "Best Parameters": {
+        "C": 10,
+        "solver": "lbfgs"
+    },
+    "Accuracy": 0.65375,
+    "Precision": 0.9702970297029703,
+    "Recall": 0.651595744680851,
+    "F1 Score": 0.7796340493237868,
+    "ROC AUC": 0.6678579343971632
+}

@@ -1,0 +1,14 @@
+{
+    "Model": "XGBoost",
+    "Best Parameters": {
+        "learning_rate": 0.05,
+        "max_depth": 4,
+        "n_estimators": 100,
+        "subsample": 0.8
+    },
+    "Accuracy": 0.99875,
+    "Precision": 0.99867197875166,
+    "Recall": 1.0,
+    "F1 Score": 0.9993355481727575,
+    "ROC AUC": 1.0
+}

@@ -1,0 +1,8 @@
+Shipping times
+Shipping costs
+Transportation modes
+Routes
+Order quantities
+Production volumes
+Manufacturing costs
+Supplier name
