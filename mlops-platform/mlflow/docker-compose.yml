@@ -7,7 +7,7 @@ services:
     ports:
     - "5015:5000"
     env_file:
-      - ../api/app/.emv
+      - ../api/app/.env
     environment:
       MLFLOW_S3_ENDPOINT_URL: http://minio:9015
     volumes:
@@ -22,32 +22,16 @@ services:
       - minio
 
   minio:
-    image: minio/minio:RELEASE.2024-01-16T16-07-38Z
+    image: minio/minio:latest
     container_name: mlflow-minio
     ports:
       - "9000:9000"
       - "9001:9001"
     env_file:
-      - ../api/app/.emv
+      - ../api/app/.env
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
-
-  minio-init:
-    image: minio/mc:RELEASE.2024-01-16T16-10-20Z
-    container_name: minio-init
-    depends_on:
-      - minio
-    env_file:
-      - ../api/app/.emv
-    entrypoint: >
-      /bin/sh -c "
-      sleep 5 &&
-      mc alias set local http://minio:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} &&
-      mc mb -p local/mlflow &&
-      mc anonymous set download local/mlflow &&
-      exit 0
-      "
 
 volumes:
   mlflow_db:
