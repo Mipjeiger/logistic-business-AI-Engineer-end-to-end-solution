@@ -1,15 +1,15 @@
-# Create docker-compose.yml for MLflow
 version: "3.9"
+
 services:
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.10.2
     container_name: mlflow-server
     ports:
-    - "5015:5000"
+      - "5015:5000"
     env_file:
       - ../api/app/.env
     environment:
-      MLFLOW_S3_ENDPOINT_URL: http://minio:9015
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
     volumes:
       - mlflow_db:/mlflow
     command: >
