@@ -1,0 +1,71 @@
+# =========================
+# Git & OS
+# =========================
+.git
+.gitignore
+.DS_Store
+__pycache__/
+*.pyc
+
+# =========================
+# Notebooks & Experiments
+# =========================
+notebooks/
+*.ipynb
+
+# =========================
+# Local MLflow Artifacts
+# =========================
+mlruns/
+mlartifacts/
+
+# =========================
+# Models (CRITICAL)
+# =========================
+*.pt
+*.pkl
+*.joblib
+*.onnx
+*.h5
+*.ckpt
+*.pb
+*.bin
+*.safetensors
+*.faiss
+
+# =========================
+# Datasets
+# =========================
+data/
+datasets/
+*.csv
+*.parquet
+
+# =========================
+# YOLO Training Outputs
+# =========================
+runs/
+weights/
+
+# =========================
+# Large Media
+# =========================
+*.mp4
+*.avi
+*.mov
+*.jpg
+*.png
+
+# =========================
+# Env & Secrets
+# =========================
+.env
+.env.*
+*.key
+
+# =========================
+# Virtual Environments
+# =========================
+venv/
+.venv/
+env/
