@@ -9,9 +9,13 @@ import faiss
 import mlflow
 import mlflow.pyfunc
 
+from mlflow_utils import setup_mlflow, promote_latest_to_production
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+MODEL_NAME = "container_sop_faiss_rag_model"
+EXPERIMENT_NAME = "rag-models"
 
 # =====================================================
 # MLflow PyFunc Model
@@ -49,27 +53,21 @@ def resolve_faiss_paths():
     Resolve local paths for MLflow artifact logging.
     These paths are NOT used during inference.
     """
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parents[2]
-
+    project_root = Path(__file__).resolve().parents[2]
     faiss_dir = project_root / "notebooks" / "faiss_container_sop_db"
-
-    index_path = faiss_dir / "index.faiss"
-    meta_path = faiss_dir / "index.pkl"
-
-    logger.info(f"FAISS index path: {index_path}")
-    logger.info(f"FAISS meta path: {meta_path}")
-
-    return index_path, meta_path
+    return faiss_dir / "index.faiss", faiss_dir / "index.pkl"
 
 
 # =====================================================
 # MLflow logging entrypoint
 # =====================================================
 def log_faiss_rag_model():
+    
+    setup_mlflow(EXPERIMENT_NAME) # Setup MLflow experiment
+
     index_path, meta_path = resolve_faiss_paths()
 
-    with mlflow.start_run():
+    with mlflow.start_run(run_name="faiss-rag"):
         mlflow.pyfunc.log_model(
             artifact_path="rag_model",
             python_model=FaissRAG(),
@@ -77,7 +75,11 @@ def log_faiss_rag_model():
                 "index": str(index_path),
                 "meta": str(meta_path),
             },
-            registered_model_name="container_sop_faiss_rag_model",
+            registered_model_name=MODEL_NAME,
         )
 
         logger.info("FAISS RAG model logged to MLflow successfully")
+
+    # Promote latest model to Production
+    promote_latest_to_production(MODEL_NAME)
+    logger.info(f"Latest model for '{MODEL_NAME}' promoted to Production")

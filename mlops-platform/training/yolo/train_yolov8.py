@@ -5,11 +5,16 @@ import pickle
 import logging
 from pathlib import Path
 
+from mlflow_utils import setup_mlflow, promote_latest_to_production
+
 # ====================================================
 # Setup logging
 # ====================================================
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+MODEL_NAME = "container_yolov8_multi_task_model"
+EXPERIMENT_NAME = "vision-models"
 
 # =====================================================
 # MLflow PyFunc Model Wrapper
@@ -75,18 +80,11 @@ def resolve_artifact_paths():
     project_root = current_dir.parents[2]
 
     detection_path = (
-        project_root /
-        "notebooks" /
-        "datasets_container" /
-        "models" /
-        "container_yolov8.pt"
+        project_root / "notebooks" / "datasets_container" / "models" / "container_yolov8.pt"
     )
 
     damage_path = (
-        project_root /
-        "notebooks" /
-        "yolov8_damage_models" /
-        "yolov8_container_damage.pt"
+        project_root / "notebooks" / "yolov8_damage_models" / "yolov8_container_damage.pt"
     )
     logger.info(f"Detection model path: {detection_path}")
     logger.info(f"Damage model path: {damage_path}")
@@ -99,17 +97,21 @@ def resolve_artifact_paths():
 def log_model_to_mlflow():
     """
     Log the YOLOv8 multi-task model to MLflow."""
-    detection_path, damage_path = resolve_artifact_paths()
+    detection_path, damage_path, class_mapping = resolve_artifact_paths()
 
-    with mlflow.start_run():
+    with mlflow.start_run(model_name="yolov8"):
         mlflow.pyfunc.log_model(
             artifact_path="YOLOv8_model",
             python_model=YOLOv8ModelWrapper(),
             artifacts={
                 "detection_model": str(detection_path),
                 "damage_model": str(damage_path),
+                "class_mapping": str(class_mapping)
             },
-            register_model_name="container_yolov8_multi_task_model"
+            register_model_name=MODEL_NAME
         )
 
         logger.info("YOLOv8 multi-task model logged to MLflow successfully.")
+
+    # Promote the latest model version to Production
+    promote_latest_to_production(MODEL_NAME)

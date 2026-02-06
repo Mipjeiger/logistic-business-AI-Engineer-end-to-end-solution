@@ -1,42 +1,13 @@
-# =========================
-# API Framework
-# =========================
 fastapi
-uvicorn[standard]
-
-# =========================
-# MLflow (model registry client)
-# =========================
+uvicorn
 mlflow
-
-# =========================
-# Core ML / Data
-# =========================
-numpy
-pandas
 scikit-learn
-
-# =========================
-# Gradient Boosting
-# =========================
-lightgbm
 xgboost
-
-# =========================
-# YOLOv8 Inference
-# =========================
-ultralytics
-torch
-torchvision
-
-# =========================
-# FAISS + RAG
-# =========================
+lightgbm
 faiss-cpu
-sentence-transformers
-
-# =========================
-# Utilities
-# =========================
-pydantic
+ultralytics
+pandas
+numpy
+pydantic>=2.0
+pydantic-settings>=2.0
 python-multipart

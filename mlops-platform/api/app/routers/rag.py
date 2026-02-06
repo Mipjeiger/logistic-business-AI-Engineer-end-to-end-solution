@@ -3,29 +3,27 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from app.model_loader import load_model
+from app.config import settings
+
 # Create a router for RAG model endpoints
 router = APIRouter(prefix="/rag", tags=["RAG"])
-
-# Injected from main.py
-rag_model = None
 
 class RAGRequest(BaseModel):
     query: str
 
+
 class RAGResponse(BaseModel):
     answer: str
 
-# Create an endpoint for RAG model
+
 @router.post("/query", response_model=RAGResponse)
-async def query_rag(payload: RAGRequest):
-    if rag_model is None:
-        raise HTTPException(status_code=500, detail="RAG Model not loaded")
-    
+def query_rag(payload: RAGRequest):
     try:
+        rag_model = load_model(settings.RAG_MODEL_NAME)
         result = rag_model.predict(payload.query)
-        return {
-            "answer": result
-        }
-    
+
+        return {"answer": result}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

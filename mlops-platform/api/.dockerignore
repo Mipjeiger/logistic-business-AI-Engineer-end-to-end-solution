@@ -69,3 +69,11 @@ weights/
 venv/
 .venv/
 env/
+
+# =========================
+# Added
+# =========================
+*.pyo
+*.pyd
+training/
+mlflow/
