@@ -6,10 +6,11 @@ import pickle
 from pathlib import Path
 
 import faiss
+import os
 import mlflow
 import mlflow.pyfunc
 
-from mlflow_utils import setup_mlflow, promote_latest_to_production
+from training.common.mlflow_utils import promote_latest_to_prod_alias
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -62,8 +63,15 @@ def resolve_faiss_paths():
 # MLflow logging entrypoint
 # =====================================================
 def log_faiss_rag_model():
-    
-    setup_mlflow(EXPERIMENT_NAME) # Setup MLflow experiment
+
+    if not os.getenv("MLFLOW_TRACKING_URI"):
+        raise RuntimeError(
+            "MLFLOW_TRACKING_URI is not set. "
+            "Refusing to log to local mlruns."
+        )
+
+    mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
+    mlflow.set_experiment(EXPERIMENT_NAME) # Set up MLflow experiment
 
     index_path, meta_path = resolve_faiss_paths()
 
@@ -81,5 +89,5 @@ def log_faiss_rag_model():
         logger.info("FAISS RAG model logged to MLflow successfully")
 
     # Promote latest model to Production
-    promote_latest_to_production(MODEL_NAME)
+    promote_latest_to_prod_alias(model_name=MODEL_NAME, alias="prod")
     logger.info(f"Latest model for '{MODEL_NAME}' promoted to Production")

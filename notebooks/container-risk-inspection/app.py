@@ -214,7 +214,7 @@ async def predict_image(file: UploadFile = File(...)):
 
         "detection_yolo": yolo_result,
 
-        "rag_assessment": {
+        "RAG_assessment": {
             "summary": rag_text,
             "recommendation": (
                 "DO NOT SHIP" if avg_risk >= 0.5 else "SAFE TO SHIP"

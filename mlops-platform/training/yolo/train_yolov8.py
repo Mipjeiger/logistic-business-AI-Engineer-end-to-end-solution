@@ -3,9 +3,10 @@ import mlflow.pyfunc
 from ultralytics import YOLO
 import pickle
 import logging
+import os
 from pathlib import Path
 
-from mlflow_utils import setup_mlflow, promote_latest_to_production
+from training.common.mlflow_utils import promote_latest_to_prod_alias
 
 # ====================================================
 # Setup logging
@@ -98,7 +99,14 @@ def log_model_to_mlflow():
     """
     Log the YOLOv8 multi-task model to MLflow."""
     detection_path, damage_path, class_mapping = resolve_artifact_paths()
+    
+    if not os.getenv("MLFLOW_TRACKING_URI"):
+        raise RuntimeError(
+            "MLFLOW_TRACKING_URI is not set. "
+            "Refusing to log to local mlruns."
+        )
 
+    mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
     with mlflow.start_run(model_name="yolov8"):
         mlflow.pyfunc.log_model(
             artifact_path="YOLOv8_model",
@@ -114,4 +122,4 @@ def log_model_to_mlflow():
         logger.info("YOLOv8 multi-task model logged to MLflow successfully.")
 
     # Promote the latest model version to Production
-    promote_latest_to_production(MODEL_NAME)
+    promote_latest_to_prod_alias(model_name=MODEL_NAME, alias="prod")

@@ -7,8 +7,8 @@ from pathlib import Path
 from sklearn.metrics import roc_auc_score
 
 # Import shared data utility
-from data_utils import load_and_split_data
-from mlflow_utils import setup_mlflow, promote_latest_to_production
+from training.tabular.data_utils import load_and_split_data
+from training.common.mlflow_utils import promote_latest_to_prod_alias
 
 # =========================
 # CONFIG
@@ -35,7 +35,14 @@ X_train, X_val, y_train, y_val = load_and_split_data(
 # =========================
 # TRAINING + MLFLOW
 # =========================
-setup_mlflow(EXPERIMENT_NAME)
+if not os.getenv("MLFLOW_TRACKING_URI"):
+    raise RuntimeError(
+        "MLFLOW_TRACKING_URI is not set. "
+        "Refusing to log to local mlruns."
+    )
+
+mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
+mlflow.set_experiment(EXPERIMENT_NAME) # Set the experiment name
 
 with mlflow.start_run(run_name="decisiontree"):
     model = DecisionTreeClassifier(
@@ -65,4 +72,4 @@ with mlflow.start_run(run_name="decisiontree"):
     )
 
 # Promote the latest model to production
-promote_latest_to_production(MODEL_NAME)
+promote_latest_to_prod_alias(model_name=MODEL_NAME, alias="prod")
