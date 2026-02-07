@@ -54,7 +54,7 @@ def resolve_faiss_paths():
     Resolve local paths for MLflow artifact logging.
     These paths are NOT used during inference.
     """
-    project_root = Path(__file__).resolve().parents[2]
+    project_root = Path(__file__).resolve().parents[3]
     faiss_dir = project_root / "notebooks" / "faiss_container_sop_db"
     return faiss_dir / "index.faiss", faiss_dir / "index.pkl"
 
@@ -64,18 +64,9 @@ def resolve_faiss_paths():
 # =====================================================
 def log_faiss_rag_model():
 
-    if not os.getenv("MLFLOW_TRACKING_URI"):
-        raise RuntimeError(
-            "MLFLOW_TRACKING_URI is not set. "
-            "Refusing to log to local mlruns."
-        )
-
-    mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
-    mlflow.set_experiment(EXPERIMENT_NAME) # Set up MLflow experiment
-
     index_path, meta_path = resolve_faiss_paths()
 
-    with mlflow.start_run(run_name="faiss-rag"):
+    with mlflow.start_run():
         mlflow.pyfunc.log_model(
             artifact_path="rag_model",
             python_model=FaissRAG(),
@@ -83,11 +74,8 @@ def log_faiss_rag_model():
                 "index": str(index_path),
                 "meta": str(meta_path),
             },
-            registered_model_name=MODEL_NAME,
+            registered_model_name="container_sop_faiss_rag_model",
         )
 
-        logger.info("FAISS RAG model logged to MLflow successfully")
-
-    # Promote latest model to Production
-    promote_latest_to_prod_alias(model_name=MODEL_NAME, alias="prod")
-    logger.info(f"Latest model for '{MODEL_NAME}' promoted to Production")
+if __name__ == "__main__":
+    log_faiss_rag_model()

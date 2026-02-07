@@ -78,14 +78,14 @@ def resolve_artifact_paths():
     Resolve and log artifact paths for YOLOv8 models.
     """
     current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parents[2]
+    project_root = current_dir.parents[3]
 
     detection_path = (
-        project_root / "notebooks" / "datasets_container" / "models" / "container_yolov8.pt"
+        project_root / "logistics-rag" / "notebooks" / "datasets_container" / "models" / "container_yolov8.pt"
     )
 
     damage_path = (
-        project_root / "notebooks" / "yolov8_damage_models" / "yolov8_container_damage.pt"
+        project_root / "logistics-rag" / "notebooks" / "yolov8_damage_models" / "yolov8_container_damage.pt"
     )
     logger.info(f"Detection model path: {detection_path}")
     logger.info(f"Damage model path: {damage_path}")
@@ -96,30 +96,19 @@ def resolve_artifact_paths():
 # MLflow logging entrypoint
 # =====================================================
 def log_model_to_mlflow():
-    """
-    Log the YOLOv8 multi-task model to MLflow."""
-    detection_path, damage_path, class_mapping = resolve_artifact_paths()
-    
-    if not os.getenv("MLFLOW_TRACKING_URI"):
-        raise RuntimeError(
-            "MLFLOW_TRACKING_URI is not set. "
-            "Refusing to log to local mlruns."
-        )
 
-    mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
-    with mlflow.start_run(model_name="yolov8"):
+    detection_path, damage_path = resolve_artifact_paths()
+
+    with mlflow.start_run():
         mlflow.pyfunc.log_model(
             artifact_path="YOLOv8_model",
             python_model=YOLOv8ModelWrapper(),
             artifacts={
                 "detection_model": str(detection_path),
                 "damage_model": str(damage_path),
-                "class_mapping": str(class_mapping)
             },
-            register_model_name=MODEL_NAME
+            registered_model_name="container_yolov8_multi_task_model",
         )
 
-        logger.info("YOLOv8 multi-task model logged to MLflow successfully.")
-
-    # Promote the latest model version to Production
-    promote_latest_to_prod_alias(model_name=MODEL_NAME, alias="prod")
+if __name__ == "__main__":
+    log_model_to_mlflow()
