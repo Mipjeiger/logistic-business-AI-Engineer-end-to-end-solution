@@ -1,0 +1,24 @@
+{
+  "title": "MLOps Inference Monitoring",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Inference Latency",
+      "targets": [
+        {
+          "expr": "ml_inference_latency_seconds_bucket",
+          "legendFormat": "{{model}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Total Requests",
+      "targets": [
+        {
+          "expr": "inference_requests_total"
+        }
+      ]
+    }
+  ]
+}

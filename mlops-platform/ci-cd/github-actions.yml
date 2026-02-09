@@ -1,0 +1,27 @@
+name: mlops-platform-cicd
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Login Dockerhub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      
+      - name: Build ML API Image
+        run: docker build -t mipjeiger/ml-api:latest ./api
+      
+      - name: Push Image
+        run: docker push mipjeiger/ml-api:latest
+      
+      - name: Smoke Test
+        run: |
+          docker run -d --name ml-api -p 8000:8000 mipjeiger/ml-api:latest
+          sleep 10
+          curl http://localhost:8000/health

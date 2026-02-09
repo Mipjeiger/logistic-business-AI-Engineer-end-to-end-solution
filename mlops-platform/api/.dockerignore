@@ -1,11 +1,14 @@
 # =========================
 # Git & OS
 # =========================
-.git
+.git/
 .gitignore
-.DS_Store
 __pycache__/
 *.pyc
+  
+# OS files
+.DS_Store
+Thumbs.db
 
 # =========================
 # Notebooks & Experiments
@@ -75,5 +78,20 @@ env/
 # =========================
 *.pyo
 *.pyd
+*.pyc
+*.pytest_cache
+*.mypy_cache
+mlflow/training/
+
+# Training & data (never in inference image)
 training/
-mlflow/
+data/
+artifacts/
+models/
+
+# CI
+ci-cd/
+
+# Docker
+Dockerfile
+docker-compose.yml
