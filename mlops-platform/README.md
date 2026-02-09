@@ -16,3 +16,13 @@ MLOps platform engineering to make system reliable
  **YOLOv8 computer vision model**
 - CI/CD for automation inference deployment reliable (Tester check system progress)
 - Slack for UI notification
+
+## ☑️ Summarize: Reliability Checklist
+✔ API stateless & cached (@lru_cache)
+✔ Prometheus metrics exposed
+✔ Grafana dashboards
+✔ Slack decoupled (service layer)
+✔ Kubernetes autoscaling
+✔ CI/CD automated
+✔ Streamlit isolated
+✔ Training isolated
