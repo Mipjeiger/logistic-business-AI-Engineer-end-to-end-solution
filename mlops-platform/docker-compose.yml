@@ -1,39 +1,104 @@
 version: "3.9"
 
 services:
+  # =========================
+  # MinIO (Artifacts)
+  # =========================
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  # =========================
+  # MLflow Tracking Server
+  # =========================
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.10.2
-    container_name: mlflow-server
+    container_name: mlflow
     ports:
       - "5015:5000"
-    env_file:
-      - ./api/app/.env
     environment:
       MLFLOW_S3_ENDPOINT_URL: http://minio:9000
-    volumes:
-      - mlflow_db:/mlflow
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
     command: >
       mlflow server
       --host 0.0.0.0
       --port 5000
       --backend-store-uri sqlite:////mlflow/mlflow.db
       --default-artifact-root s3://mlflow
+    volumes:
+      - mlflow_db:/mlflow
     depends_on:
       - minio
+    restart: unless-stopped
 
-  minio:
-    image: minio/minio:latest
-    container_name: mlflow-minio
+  # =========================
+  # Inference API (FastAPI)
+  # =========================
+  mlops-api:
+    image: mipjeiger/mlops-api:latest
+    container_name: mlops-api
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "8000:8000"
     env_file:
-      - ./api/app/.env
-    command: server /data --console-address ":9001"
+      - ./.env
+    depends_on:
+      - mlflow
+    restart: unless-stopped
+
+  # =========================
+  # Streamlit UI
+  # =========================
+  streamlit:
+    build: ./streamlit
+    container_name: streamlit-ui
+    ports:
+      - "8501:8501"
+    environment:
+      API_URL: http://mlops-api:8000
+    depends_on:
+      - mlops-api
+    restart: unless-stopped
+
+  # =========================
+  # Prometheus
+  # =========================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
     volumes:
-      - minio_data:/data
-  
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - mlops-api
+    restart: unless-stopped
+
+  # =========================
+  # Grafana
+  # =========================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
 
 volumes:
   mlflow_db:
   minio_data:
+  grafana_data:

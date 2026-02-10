@@ -2,6 +2,6 @@ global:
   scrape_interval: 5s
 
 scrape_configs:
-  - job_name: 'ml-api'
+  - job_name: 'mlops-api'
     static_configs:
-      - targets: ['ml-api:8000']
+      - targets: ['mlops-api:8000']

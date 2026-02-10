@@ -1,25 +1,25 @@
 apiVersion:
 kind: Deployment
 metadata:
-  name: ml-api
+  name: mlops-api
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: ml-api
+      app: mlops-api
   template:
     metadata:
       labels:
-        app: ml-api
+        app: mlops-api
     spec:
       containers:
-        - name: ml-api
-          image: mipjeiger/ml-api:latest
+        - name: mlops-api
+          image: mipjeiger/mlops-api:latest
           ports:
             - containerPort: 8000
           envFrom:
             - secretRef:
-                name: ml-api-secrets
+                name: mlops-api-secrets
           resources:
             requests:
               cpu: "500m"

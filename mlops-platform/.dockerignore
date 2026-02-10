@@ -1,0 +1,110 @@
+# =========================
+# Secrets & environment
+# =========================
+.env
+.env.*
+*.pem
+*.key
+
+# =========================
+# Git
+# =========================
+.git
+.gitignore
+
+# =========================
+# Python cache
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache
+*.mypy_cache
+
+# =========================
+# Virtual environments
+# =========================
+.venv/
+venv/
+env/
+
+# =========================
+# OS / Editor files
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# =========================
+# Docs & markdown
+# =========================
+README.md
+docs/
+*.md
+
+# =========================
+# Training (never in runtime images)
+# =========================
+training/
+data/
+datasets/
+artifacts/
+models/
+notebooks/
+
+# =========================
+# Monitoring & Infra (not inside API image)
+# =========================
+monitoring/
+k8s/
+ci-cd/
+scripts/
+
+# =========================
+# Docker / Compose
+# =========================
+docker-compose.yml
+**/docker-compose.yml
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# Large Media
+# =========================
+*.mp4
+*.avi
+*.mov
+*.jpg
+*.png
+
+# =========================
+# Models (CRITICAL)
+# =========================
+*.pt
+*.pkl
+*.joblib
+*.onnx
+*.h5
+*.ckpt
+*.pb
+*.bin
+*.safetensors
+*.faiss
+
+# =========================
+# Notebooks & Experiments
+# =========================
+notebooks/
+*.ipynb
+
+# =========================
+# Local MLflow Artifacts
+# =========================
+mlruns/
+mlartifacts/
