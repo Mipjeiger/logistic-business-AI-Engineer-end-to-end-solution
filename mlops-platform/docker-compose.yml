@@ -46,6 +46,7 @@ services:
   # Inference API (FastAPI)
   # =========================
   mlops-api:
+    build: ./api
     image: mipjeiger/mlops-api:latest
     container_name: mlops-api
     ports:
