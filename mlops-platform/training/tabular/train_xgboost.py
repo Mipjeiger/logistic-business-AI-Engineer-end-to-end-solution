@@ -4,7 +4,7 @@ from xgboost import XGBClassifier
 import os
 from pathlib import Path
 
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, log_loss
 
 # Import shared data utility
 from training.tabular.data_utils import load_and_split_data
@@ -54,13 +54,18 @@ with mlflow.start_run(run_name="xgboost"):
 
     model.fit(X_train, y_train)
 
-    preds = model.predict_proba(X_val)[:, 1]
-    auc = roc_auc_score(y_val, preds)
+    # metrics training calculation
+    val_probs = model.predict_proba(X_val)
+    auc = roc_auc_score(y_val, val_probs[:, 1])
+    val_logloss = log_loss(y_val, val_probs)
+    train_logloss = log_loss(y_train, model.predict_proba(X_train))
 
     # =========================
     # LOGGING
     # =========================
     mlflow.log_metric("roc_auc", auc)
+    mlflow.log_metric("validation_logloss", val_logloss)
+    mlflow.log_metric("training_logloss", train_logloss)
     mlflow.log_params({
         "n_estimators": 300,
         "learning_rate": 0.1,
