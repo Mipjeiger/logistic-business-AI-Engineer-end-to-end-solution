@@ -46,16 +46,32 @@ services:
   # Inference API (FastAPI)
   # =========================
   mlops-api:
-    build: ./api
-    image: mipjeiger/mlops-api:latest
+    image: python:3.11-slim
     container_name: mlops-api
+    working_dir: /app
     ports:
       - "8000:8000"
     env_file:
-      - ./.env
+      - .env
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - MLFLOW_TRACKING_URI=http://mlflow:5015
+      - PIP_NO_CACHE_DIR=1
+    volumes:
+      - .api/app:/app/app:ro
+      - ./api/requirements.txt:/app/requirements.txt:ro
     depends_on:
       - mlflow
     restart: unless-stopped
+    command: >
+      sh -c "pip install --no-cache-dir -r requirements.txt &&
+             uvicorn app.main:app --host --port 8000"
+    healthcheck:
+      test: ["CMD", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   # =========================
   # Streamlit UI
