@@ -120,13 +120,9 @@ def log_faiss_rag_model():
     mlflow.set_experiment(EXPERIMENT_NAME) # Set the experiment name
 
     with mlflow.start_run(run_name="faiss_rag_index"):
-        # Log metrics
-        mlflow.log_metrics("num_vectors", metrics["num_vectors"])
-        mlflow.log_metrics("dimension", metrics["dimension"])
-        mlflow.log_metrics("index_size_mb", metrics["index_size_mb"])
-        mlflow.log_metrics("meta_size_mb", metrics["meta_size_mb"])
-        mlflow.log_metrics("total_size_mb", metrics["total_size_mb"])
-        mlflow.log_metrics("avg_search_time_ms", metrics["avg_search_time_ms"])
+        # Create loopup log metrics
+        for k, v in metrics.items():
+            mlflow.log_metric(k, v)
 
         # Log parameters
         mlflow.log_params({
