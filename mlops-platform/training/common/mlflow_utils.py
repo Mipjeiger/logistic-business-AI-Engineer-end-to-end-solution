@@ -3,8 +3,22 @@ import mlflow
 from mlflow.tracking import MlflowClient
 from dotenv import load_dotenv
 
-# Load .env variables from api/app/.env
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '../../api/app/.env'))
+# =========================
+# .Env Configuration
+# =========================
+BASE_DIR = os.path.dirname(__file__)
+ENV_PATH = os.path.join(BASE_DIR, "..", "..", ".env")
+load_dotenv(dotenv_path=ENV_PATH)
+
+# =========================
+# MLflow Configuration
+# =========================
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
+if MLFLOW_TRACKING_URI:
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    print(f"MLflow Tracking URI is exists set to: {MLFLOW_TRACKING_URI}")
+else:
+    raise RuntimeError("MLFLOW_TRACKING_URI is not set in environment variables.")
 
 # =========================
 # MLflow bootstrap
@@ -30,6 +44,6 @@ def promote_latest_to_prod_alias(model_name: str, alias: str = "prod"):
     client.transition_model_version_stage(
         name=model_name,
         version=latest.version,
-        stage="Production"
-        #archive_existing_versions=True
+        stage="Production",
+        archive_existing_versions=True # Concern to avoid multiple prod versions
     )

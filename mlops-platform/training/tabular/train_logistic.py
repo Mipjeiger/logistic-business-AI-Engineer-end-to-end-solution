@@ -46,9 +46,10 @@ mlflow.set_experiment(EXPERIMENT_NAME) # Set the experiment name
 
 with mlflow.start_run(run_name="logistic_regression"):
     model = LogisticRegression(
-        max_iter=700,
+        max_iter=800,
         solver='lbfgs',
-        n_jobs=-1
+        n_jobs=-1,
+        class_weight='balanced'
     )
 
     model.fit(X_train, y_train)
@@ -61,11 +62,14 @@ with mlflow.start_run(run_name="logistic_regression"):
     # =========================
     mlflow.log_metric("roc_auc", auc)
     mlflow.log_params({
-        "max_iter": 700,
+        "max_iter": 800,
         "solver": 'lbfgs',
-        "n_jobs": -1
+        "n_jobs": -1,
+        "l1_ratio": None,
+        "class_weight": 'balanced'
     })
 
+    # Log the correct code for mlflow.sklearn.log_model
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path="model",

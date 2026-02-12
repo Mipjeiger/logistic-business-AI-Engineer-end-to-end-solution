@@ -46,7 +46,7 @@ mlflow.set_experiment(EXPERIMENT_NAME) # Set the experiment name
 
 with mlflow.start_run(run_name="lightgbm"):
     model = lgb.LGBMClassifier(
-        n_estimators=200,
+        n_estimators=500,
         learning_rate=0.1,
         max_depth=5
     )
@@ -61,7 +61,7 @@ with mlflow.start_run(run_name="lightgbm"):
     # =========================
     mlflow.log_metric("roc_auc", auc)
     mlflow.log_params({
-        "n_estimators": 200,
+        "n_estimators": 500,
         "learning_rate": 0.1,
         "max_depth": 5
     })

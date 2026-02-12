@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # MLflow
     # =========================
     MLFLOW_TRACKING_URI: str = Field(
-        "http://host.docker.internal:5015",
+        "http://mlflow:5015", # Concern port to handle error while debugging locally
         description="MLflow Tracking URI"
     )
 
@@ -58,9 +58,10 @@ class Settings(BaseSettings):
 
     # pydantic v2 style setting source (code changed in v2)
     model_config = {
-        "env_file": "api/app/.env",
+        "env_file": ".env",
         "env_file_encoding": "utf-8",
     }
+    
 
 # Singleton setting object
 settings = Settings()

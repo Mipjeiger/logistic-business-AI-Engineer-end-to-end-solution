@@ -47,8 +47,9 @@ mlflow.set_experiment(EXPERIMENT_NAME) # Set the experiment name
 with mlflow.start_run(run_name="decisiontree"):
     model = DecisionTreeClassifier(
         max_depth=5,
-        min_samples_leaf=10,
-        random_state=42
+        min_samples_leaf=5,
+        random_state=42,
+        min_samples_split=3,
     )
 
     model.fit(X_train, y_train)
@@ -62,7 +63,9 @@ with mlflow.start_run(run_name="decisiontree"):
     mlflow.log_metric("roc_auc", auc)
     mlflow.log_params({
         "max_depth": 5,
-        "min_samples_leaf": 10
+        "min_samples_leaf": 10,
+        "random_state": 42,
+        "min_samples_split": 3
     })
 
     mlflow.sklearn.log_model(

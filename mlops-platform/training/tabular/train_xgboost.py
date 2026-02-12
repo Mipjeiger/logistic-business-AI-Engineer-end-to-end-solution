@@ -46,7 +46,7 @@ mlflow.set_experiment(EXPERIMENT_NAME) # Set the experiment name
 
 with mlflow.start_run(run_name="xgboost"):
     model = XGBClassifier(
-        n_estimators=200,
+        n_estimators=300,
         learning_rate=0.1,
         eval_metric='logloss',
         n_jobs=-1
@@ -62,7 +62,7 @@ with mlflow.start_run(run_name="xgboost"):
     # =========================
     mlflow.log_metric("roc_auc", auc)
     mlflow.log_params({
-        "n_estimators": 200,
+        "n_estimators": 300,
         "learning_rate": 0.1,
         "eval_metric": 'logloss',
         "n_jobs": -1
