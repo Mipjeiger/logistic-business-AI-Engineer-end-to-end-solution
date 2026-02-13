@@ -187,15 +187,13 @@ Inspection automation container using Vision + AI reasoning
     
 - Video inspection container damage result with CLASS_MAP for identyfing DAMAGE and Container classification. ROI_DEBUG added for better performance to prevent false positive values
     
-    ![2B658163-B3E4-4722-A62E-69FFD2E3A953.png](attachment:ca095d3e-cbe7-425f-b01f-13c2c3cd6f4b:2d7314fb-d24b-4889-853f-42b615fc6d1a.png)
+    ![alt text](images/img25.png)
     
-    ![8AE0FE99-8EB0-4173-A0BE-82E2CAD53983.png](attachment:e3f233c0-c037-4cb5-ba90-0a91ed1ce8c8:696fafee-2773-4a7b-9d6b-dac8feab9837.png)
-    
-    ![C366AE09-D236-469C-AD79-2EB39F78F467.png](attachment:baf39a1e-cd7c-498f-b32b-45834da8787c:C366AE09-D236-469C-AD79-2EB39F78F467.png)
+    ![alt text](images/img26.png)
     
 - Still caught up on container vision even the drone getting higher
     
-    ![511A5D48-E73C-4214-A376-CF805D0C6D26.png](attachment:a0a908e7-bb4f-4858-a79c-4889e9abbba7:511A5D48-E73C-4214-A376-CF805D0C6D26.png)
+    ![alt text](images/img27.png)
     
 - Videos
     
@@ -204,11 +202,11 @@ Inspection automation container using Vision + AI reasoning
 - Creating RAG Experimennt Layer and Create Vector DB embbeding use HuggingFace on (sentence-transformers/all-MiniLM-L6-v2) model name for read documents
 - Finetuning LLM with OllamaLLM using llama3 model
     
-    ![0EABD040-4E60-4942-B2F6-478F0E5329C6_4_5005_c.jpeg](attachment:e36ea738-141a-48e4-955f-1e1ac772baf8:0EABD040-4E60-4942-B2F6-478F0E5329C6_4_5005_c.jpeg)
+    ![alt text](images/img28.png)
     
 - Prompting AI Engineering result using OllamaLLM
     
-    ![D4A9114D-5637-471F-80C5-F26617270F2E.png](attachment:14466e9c-423d-4c92-8b9b-413cdaf3f913:D4A9114D-5637-471F-80C5-F26617270F2E.png)
+    ![alt text](images/img29.png)
     
 - Prompting full AI Generative results
     - 🤖 Generating AI business recommendation...
@@ -341,41 +339,41 @@ Inspection automation container using Vision + AI reasoning
     - Inference logic
 - Docker contenarize mlflow + minio + minio-init are bing wrapped in Dockerfile
     
-    ![B307D7AF-F57B-40A1-940E-A914F9D4967C.png](attachment:05150bd3-8639-46b2-bec0-88dc7c0f7599:B307D7AF-F57B-40A1-940E-A914F9D4967C.png)
+    ![alt text](images/img30.png)
     
 - Remove minio-init because of MinIO will work without pre-created buckets
     
-    ![F3CE7938-98A4-43FA-822E-A9C9A3D52490.png](attachment:349f316e-b8aa-46c9-9bbd-e5164c16bbf9:F3CE7938-98A4-43FA-822E-A9C9A3D52490.png)
+    ![alt text](images/img31.png)
     
 - MLflow Tracking & Registry models
     
-    ![41BA024B-89D0-4794-B286-CC9F476214E6.png](attachment:f895a3aa-f8a3-4a02-912b-57d95a586b9e:41BA024B-89D0-4794-B286-CC9F476214E6.png)
+    ![alt text](images/img32.png)
     
-    ![509D350D-EB7E-4A0B-92E0-B1ABF53E6FD9.png](attachment:d2c69626-ac4d-41a3-aa88-79e529ed2ecf:509D350D-EB7E-4A0B-92E0-B1ABF53E6FD9.png)
+    ![alt text](images/img33.png)
     
 - MLflow metrics result
     
-    ![D6CC2DE0-9551-4201-A91F-CCBF63EC0807_1_105_c.jpeg](attachment:08d81d04-8ae1-43aa-9f58-e62625b347c6:D6CC2DE0-9551-4201-A91F-CCBF63EC0807_1_105_c.jpeg)
+    ![alt text](images/img34.png)
     
 - Machine learning models in minio storage
     
-    ![E94E940D-2AF2-4CD6-9E1B-718287EF4FC6_1_105_c.jpeg](attachment:96a8eb30-8bd6-431a-83e8-c6b23663e8eb:E94E940D-2AF2-4CD6-9E1B-718287EF4FC6_1_105_c.jpeg)
+    ![alt text](images/img35.png)
     
 - YOLOV8 model in minio storage
     
-    ![8BA8FD49-CE20-4B8E-A48F-A922ABA856B1.png](attachment:8a3d5498-29f9-45a0-910e-bc45b78c111e:8BA8FD49-CE20-4B8E-A48F-A922ABA856B1.png)
+    ![alt text](images/img36.png)
     
 - RAG model in minio storage
     
-    ![334F8DA5-FF46-4C9E-9594-4C239619AD4C.png](attachment:61ff3d6e-aa0c-41fb-b31c-5bae09422d2e:334F8DA5-FF46-4C9E-9594-4C239619AD4C.png)
+    ![alt text](images/img37.png)
     
 - Push to Dockerhub
     
-    ![80EFD8E3-9285-487F-8676-3E909D110341.png](attachment:30d3f646-b483-4e27-b233-f5125f855547:80EFD8E3-9285-487F-8676-3E909D110341.png)
+    ![alt text](images/img38.png)
     
 - Build docker-compose.yml for inference system with adding Grafana, Prometheus, Streamlit, API, Minio, MLFlow.
     
-    ![5AEAC7EE-5745-496E-ACE3-1BFEF19AE899.png](attachment:55cd5c68-d84d-431f-846c-ee65953dfde2:5AEAC7EE-5745-496E-ACE3-1BFEF19AE899.png)
+    ![alt text](images/img39.png)
     
 - Slack receiving notifications which are triggered by API calls
 - (result)
@@ -392,23 +390,23 @@ Inspection automation container using Vision + AI reasoning
 - 
 - Build dockerfile images with purpose to push on dockerhub. After has been pushed, pull multimodel-api from dockerhub for retrieving coherent in deployment
     
-    ![BD6A63E6-EF2E-4AB4-8BBA-E51CCB55C212.png](attachment:29fda326-6463-4e7f-bd01-0ab821fc866a:BD6A63E6-EF2E-4AB4-8BBA-E51CCB55C212.png)
+    ![alt text](images/img40.png)
     
 - MLOps FastAPI [localhost](http://localhost) components
     
-    ![33EE1DB2-2529-4DA3-A8E1-D3C59D490882.png](attachment:3ee0f949-0b38-42b0-8a69-2e0e3b202c74:33EE1DB2-2529-4DA3-A8E1-D3C59D490882.png)
+    ![alt text](images/img41.png)
     
 - Deployment services API in railway
     
-    ![5E07583A-831E-4C77-A3A6-331CBE575A80.png](attachment:efcba50c-80c3-4b0a-91da-7738af05aaf1:5E07583A-831E-4C77-A3A6-331CBE575A80.png)
+    ![alt text](images/img42.png)
     
     - API deployment in railway hosting cloud
         
-        ![Screenshot 2026-02-01 at 09.37.23.png](attachment:671b455a-5f57-4fa5-bda7-0025d59491ff:Screenshot_2026-02-01_at_09.37.23.png)
+        ![alt text](images/img43.png)
         
     - Inference public API Service by railway deployment
     
-    ![Screenshot 2026-02-01 at 09.33.29.png](attachment:1d9232ac-4e94-47f5-bd9b-cb1d25d47939:Screenshot_2026-02-01_at_09.33.29.png)
+    ![alt text](images/img44.png)
     
 - Integrated SQL database into  Feature Store and Spark hadoop as Data Features for ingesting in API.
     - Firstly, build EDA (Explore Data Analysis) in notebook for comprehensive machine learning models
@@ -437,14 +435,10 @@ Inspection automation container using Vision + AI reasoning
     }
     ```
     
-- Uploading image for API testing
-    
-    ![407524B1-0113-4690-BD29-724CAC4C0C5F.png](attachment:209c415c-1cb8-44df-93a7-3a551b2a64ba:407524B1-0113-4690-BD29-724CAC4C0C5F.png)
-    
 - Results of image prediction uploaded
     
-    ![4EC4C4A1-EC08-4347-A929-D9F24A48581C.png](attachment:c909ee6a-7b38-4a29-9514-929684d20fd1:4EC4C4A1-EC08-4347-A929-D9F24A48581C.png)
+    ![alt text](images/img45.png)
     
-    ![88563CB6-5E9E-402C-8F73-F5ECBEAF5BEC.png](attachment:edc315f6-937c-49cf-8f80-321673f94058:88563CB6-5E9E-402C-8F73-F5ECBEAF5BEC.png)
+    ![alt text](images/img46.png)
     
 - Deploy and inference to production (PENDING ⌛️)
