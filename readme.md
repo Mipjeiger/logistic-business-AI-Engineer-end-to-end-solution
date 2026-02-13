@@ -199,7 +199,7 @@ Inspection automation container using Vision + AI reasoning
     
 - Videos
     
-    add .gif here
+    ![alt text](images/output_mb.gif)
     
 - Creating RAG Experimennt Layer and Create Vector DB embbeding use HuggingFace on (sentence-transformers/all-MiniLM-L6-v2) model name for read documents
 - Finetuning LLM with OllamaLLM using llama3 model
@@ -448,6 +448,3 @@ Inspection automation container using Vision + AI reasoning
     ![88563CB6-5E9E-402C-8F73-F5ECBEAF5BEC.png](attachment:edc315f6-937c-49cf-8f80-321673f94058:88563CB6-5E9E-402C-8F73-F5ECBEAF5BEC.png)
     
 - Deploy and inference to production (PENDING ⌛️)
-
-    add gif
-    ![alt text](images/output_mb.gif)
