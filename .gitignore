@@ -1,6 +1,5 @@
 .env
 .DS_Store
-data/IMG_VALID
 .vscode/
 notebooks/.ipynb_checkpoints
 logs/
