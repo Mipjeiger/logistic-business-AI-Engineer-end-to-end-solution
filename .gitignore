@@ -7,7 +7,6 @@ logs/
 __pycache__/
 .venv/
 mlruns/
-notebooks/dataset
 deployment/.env
 yolov8-container-inspection/.gitattributes
 snowflake_deployment/.env
